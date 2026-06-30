@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Weather Dashboard</title>
+
+    <style>
+
+       body{
+    margin:0;
+    font-family:Arial, sans-serif;
+    background:linear-gradient(to bottom,#7cc7ff,#cfefff);
+    min-height:100vh;
+}
+
+        .container{
+            width:700px;
+            margin:40px auto;
+            background:rgba(255,255,255,0.25);
+            backdrop-filter:blur(8px);
+            padding:25px;
+            border-radius:15px;
+            text-align:center;
+        }
+
+        h1,h2,h3{
+            color:white;
+        }
+
+        input{
+            width:250px;
+            padding:10px;
+            border:none;
+            border-radius:8px;
+        }
+
+        button{
+            padding:10px 20px;
+            border:none;
+            border-radius:8px;
+            background:#3b82f6;
+            color:white;
+            cursor:pointer;
+        }
+
+        .weather{
+            margin-top:30px;
+            color:white;
+        }
+
+        .forecast{
+            display:flex;
+            justify-content:space-around;
+            margin-top:25px;
+        }
+
+        .card{
+            background:rgba(255,255,255,0.3);
+            padding:15px;
+            border-radius:10px;
+            width:150px;
+            color:white;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>SkyCast Dashboard</h1>
+
+    <h3 id="welcome"></h3>
+
+    <input
+    type="text"
+    id="city"
+    placeholder="Enter City">
+
+    <button onclick="getWeather()">
+        Search
+    </button>
+
+    <div class="weather" id="weather"></div>
+
+    <div class="forecast" id="forecast"></div>
+
+</div>
+
+<script>
+
+document.getElementById("welcome").innerHTML =
+"Welcome, " + localStorage.getItem("username");
+
+async function getWeather(){
+
+    let city=document.getElementById("city").value;
+
+    if(city==""){
+        alert("Enter a city name");
+        return;
+    }
+
+    let apiKey="f976224ca39140c5a62173507263006";
+
+    let url="https://api.weatherapi.com/v1/forecast.json?key="+apiKey+"&q="+city+"&days=3";
+
+    let response=await fetch(url);
+
+    let data=await response.json();
+
+    if(data.error){
+        alert("City not found");
+        return;
+    }
+
+    document.getElementById("weather").innerHTML=
+
+    "<h2>"+data.location.name+", "+data.location.country+"</h2>"+
+
+    "<img src='https:"+data.current.condition.icon+"'>"+
+
+    "<h2>"+data.current.temp_c+" °C</h2>"+
+
+    "<p>"+data.current.condition.text+"</p>"+
+
+    "<p>Humidity : "+data.current.humidity+"%</p>"+
+
+    "<p>Wind : "+data.current.wind_kph+" km/h</p>";
+
+
+
+    let forecastHTML="";
+
+    data.forecast.forecastday.forEach(function(day){
+
+        forecastHTML+=
+
+        "<div class='card'>"+
+
+        "<h3>"+day.date+"</h3>"+
+
+        "<img src='https:"+day.day.condition.icon+"'>"+
+
+        "<p>"+day.day.condition.text+"</p>"+
+
+        "<p>"+day.day.avgtemp_c+" °C</p>"+
+
+        "</div>";
+
+    });
+
+    document.getElementById("forecast").innerHTML=forecastHTML;
+
+
+
+    let weather=data.current.condition.text.toLowerCase();
+
+    if(weather.includes("sun") || weather.includes("clear")){
+
+        document.body.style.backgroundImage="url('images/sunny.jpg')";
+
+    }
+
+    else if(weather.includes("rain")){
+
+        document.body.style.backgroundImage="url('images/rainy.jpg')";
+
+    }
+
+    else if(weather.includes("cloud")){
+
+        document.body.style.backgroundImage="url('images/cloudy.jpg')";
+
+    }
+
+    else if(weather.includes("snow")){
+
+        document.body.style.backgroundImage="url('images/snowy.avif')";
+
+    }
+
+    else{
+
+        document.body.style.backgroundImage="url('images/background.avif')";
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>
